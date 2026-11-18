@@ -270,6 +270,20 @@ class MainActivity : Activity() {
         }
 
         @JavascriptInterface
+        fun setReminders(json: String) {
+            Reminders.apply(this@MainActivity, json)
+        }
+
+        @JavascriptInterface
+        fun requestPostNotifications() {
+            runOnUiThread {
+                if (Build.VERSION.SDK_INT >= 33) {
+                    requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQ_NOTIF)
+                }
+            }
+        }
+
+        @JavascriptInterface
         fun status(): String {
             val sms = checkSelfPermission(Manifest.permission.RECEIVE_SMS) == PackageManager.PERMISSION_GRANTED
             val notif = NotificationManagerCompat
@@ -280,6 +294,7 @@ class MainActivity : Activity() {
             o.put("sms", sms)
             o.put("notif", notif)
             o.put("mic", mic)
+            o.put("postNotif", Build.VERSION.SDK_INT < 33 || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
             o.put("read", checkSelfPermission(Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED)
             return o.toString()
         }
@@ -289,5 +304,6 @@ class MainActivity : Activity() {
         private const val REQ_SMS = 10
         private const val REQ_MIC = 11
         private const val REQ_READ = 12
+        private const val REQ_NOTIF = 13
     }
 }
